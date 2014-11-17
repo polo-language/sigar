@@ -23,7 +23,6 @@
 #include "sigar_private.h"
 #include "sigar_ptql.h"
 #include "sigar_util.h"
-#include "sigar_os.h"
 #include "sigar_format.h"
 
 #include <string.h>
@@ -1384,7 +1383,7 @@ JNIEXPORT jlong SIGAR_JNI(ptql_SigarProcessQuery_findProcess)
     sigar_ptql_re_impl_set(sigar, NULL, NULL);
 
     if (status < 0) {
-        sigar_throw_exception(env, sigar->errbuf);
+        sigar_throw_exception(env, sigar_strerror(sigar, -1));
     }
     else if (status != SIGAR_OK) {
         sigar_throw_error(env, jsigar, status);
@@ -1412,7 +1411,7 @@ JNIEXPORT jlongArray SIGAR_JNI(ptql_SigarProcessQuery_find)
     sigar_ptql_re_impl_set(sigar, NULL, NULL);
 
     if (status < 0) {
-        sigar_throw_exception(env, sigar->errbuf);
+        sigar_throw_exception(env, sigar_strerror(sigar, -1));
         return NULL;
     }
     else if (status != SIGAR_OK) {
