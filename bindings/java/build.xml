@@ -122,7 +122,7 @@
 
     <replace file="${version.tofile}">
       <replacefilter token="@@BUILD_DATE@@" value="${BUILD_DATE}"/>
-      <replacefilter token="@@VERSION_STRING@@" value="${sigar.version}.${version.build}"/>
+      <replacefilter token="@@VERSION_STRING@@" value="${sigar.version}"/>
       <replacefilter token="@@SCM_REVISION@@" value="${jni.scmrev}"/>
       <replacefilter token="@@ARCHNAME@@" value="${jni.libarch}"/>
       <replacefilter token="@@ARCHLIB@@" value="${jni.libname.full}"/>
@@ -146,35 +146,7 @@
        <param name="version.file"
               value="src/org/hyperic/sigar/Version.java"/>
     </antcall>
-
-    <antcall target="version-file">
-       <param name="version.file.srcdir"
-              value="../.."/>
-       <param name="version.file"
-              value="src/sigar_version.c"/>
-       <param name="version.tofile"
-              value="${build}/src/sigar_version.c"/>
-    </antcall>
-
-    <antcall target="version-file">
-       <param name="version.file.srcdir"
-              value="../.."/>
-       <param name="version.file"
-              value="src/os/darwin/Info.plist"/>
-       <param name="version.tofile"
-              value="${build}/src/Info.plist"/>
-    </antcall>
-
-    <antcall target="version-file">
-       <param name="version.file.srcdir"
-              value="../.."/>
-       <param name="version.file"
-              value="src/os/win32/sigar.rc"/>
-       <param name="version.tofile"
-              value="${build}/src/sigar.rc"/>
-    </antcall>
   </target>
-
   <target name="sigar.rc" if="win32">
     <exec executable="rc" dir="${build}/src">
       <arg value="/r"/>
@@ -205,22 +177,15 @@
      </or>
    </condition>
 
-    <!-- include sigar *.c files rather than link against libsigar -->
     <patternset id="jni.source.files">
-      <include name="src/*.c"/>
-      <exclude name="src/sigar_main.c"/>
-      <include name="src/os/${jni.src}/*.c"/>
-      <include name="src/os/${jni.src}/*.cpp"/>
       <include name="bindings/java/src/jni/*.c"/>
       <include name="bindings/java/src/${win32.jni}/*.cpp"/>
       <include name="bindings/java/src/${win32.jni}/*.c"/>
       <include name="bindings/java/src/${vmware.jni}/*.c"/>
-      <include name="bindings/java/build/src/sigar_version.c"/>
     </patternset>
 
     <path id="jni.include.dirs">
       <path location="../../include"/>
-      <path location="../../src/os/${jni.src}"/>
       <path location="${build}/src"/>
       <path location="src/jni"/>
     </path>
@@ -244,18 +209,6 @@
     </condition>
   </target>
 
-  <target name="copy-includes">
-   <mkdir dir="${sigar-bin}/include"/>
-   <copy toDir="${sigar-bin}/include" overwrite="true">
-     <fileset dir="../../include">
-         <include name="sigar.h"/>
-         <include name="sigar_fileinfo.h"/>
-         <include name="sigar_format.h"/>
-         <include name="sigar_ptql.h"/>
-         <include name="sigar_log.h"/>
-     </fileset>
-   </copy>
-  </target>
 
   <target name="sigar-exe-cpptasks">
     <cc outtype="executable"
@@ -266,8 +219,9 @@
 
       <linker name="${jni.compiler}">
         <libset dir="${jni.bin}/lib"
-                libs="${jni.libname}"/>
-      </linker>
+                libs="${jni.libname} sigar"/>
+        <libset libs="sigar"/>
+    </linker>
 
       <includepath location="../../include"/>
 
@@ -284,6 +238,7 @@
       <arg value="-Wall"/>
       <arg value="-Werror"/>
       <arg value="-ldl"/>
+      <arg value="-lsigar"/>
       <arg value="-I./include"/>
       <arg value="src/sigar_main.c"/>
       <arg value="-o"/>
@@ -297,7 +252,7 @@
   </target>
 
   <target name="build-jni"
-          depends="jni-init,prepare-src,jni-compile,jni-lib-copy,copy-includes"
+          depends="jni-init,prepare-src,jni-compile,jni-lib-copy"
           if="jni.libarch"/>
 
   <target name="pack">
@@ -341,15 +296,15 @@
    <java fork="yes" failonerror="yes"
          output="${testresults}/version.txt"
          jvm="${java.home}/bin/java"
-         jvmargs="${junit.args}"
          jar="${sigar-bin}/lib/${sigar.jar}">
      <arg value="version"/>
+     <arg value="${junit.args}"/>
    </java>
 
    <property name="junit.mx" value="-Dcom.sun.management.jmxremote"/>
 
    <junit printsummary="yes" fork="yes"
-          haltonfailure="yes" showoutput="true">
+          haltonfailure="no" showoutput="true">
      <jvmarg line="${junit.args} ${junit.mx}"/>
 
      <classpath refid="alljars"/>

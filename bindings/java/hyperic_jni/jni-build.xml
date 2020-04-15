@@ -394,10 +394,11 @@
       </compiler>
 
       <linker name="gcc" if="freebsd">
+        <linkerarg value="-L/usr/local/lib"/>
         <libset if="jni.libset.libs"
                 dir="${jni.libset.dir}"
                 libs="${jni.libset.libs}"/>
-        <syslibset libs="kvm"/>
+        <syslibset libs="kvm sigar"/>
       </linker>
 
       <!-- OpenBSD -->
