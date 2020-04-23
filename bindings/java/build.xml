@@ -116,7 +116,7 @@
       <src path="${src}"/>
       <src path="${build}/src"/>
       <src path="${jni.src.java}"/>
-      <include name="**/*.java"/>
+      <include name="**/test/*.java"/>
     </javac>
   </target>
 
@@ -287,7 +287,7 @@
   </target>
 
   <target name="build" depends="build-jni,compile,pack"/>
-  <target name="build-tests" depends="build-jni,compile-tests,pack,pack-tests"/>
+  <target name="build-tests" depends="build-jni,compile,compile-tests,pack,pack-tests"/>
 
   <target name="clean">
     <delete dir="${build}"/>
