@@ -3,7 +3,7 @@
 static sigar_version_t sigar_version = {
     __DATE__,
     "@SCM_REVISION@",
-    "@PACKAGE_STRING@",
+    "@PACKAGE_VERSION@",
     "@build@",
     "@build_os@",
     "@build_cpu@",
